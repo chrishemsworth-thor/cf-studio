@@ -77,7 +77,7 @@ function ConnectionCard({
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                   onKeyDown={(e) => e.key === "Escape" && setEditing(false)}
-                  className="rounded-md border border-orange-500/40 bg-orange-500/10 px-2 py-0.5 text-sm font-semibold text-orange-200 outline-none focus:ring-1 focus:ring-orange-500/30"
+                  className="rounded-md border border-orange-500/40 bg-orange-500/10 px-2 py-0.5 text-sm font-semibold text-orange-800 outline-none focus:ring-1 focus:ring-orange-500/30"
                 />
                 <button
                   type="submit"
