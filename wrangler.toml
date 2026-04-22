@@ -1,0 +1,8 @@
+name = "cf-core-products"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cf-studio-meta"
+database_id = "d0b86f1c-c8b4-4114-85b9-cc154817a384"
