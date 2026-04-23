@@ -31,7 +31,8 @@ function toBase64(buffer: ArrayBuffer): string {
 }
 
 function fromBase64(str: string): ArrayBuffer {
-  return Buffer.from(str, "base64").buffer.slice(0) as ArrayBuffer;
+  const buf = Buffer.from(str, "base64");
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 }
 
 export async function encryptToken(plainText: string): Promise<string> {
