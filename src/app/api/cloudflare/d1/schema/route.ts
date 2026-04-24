@@ -36,16 +36,17 @@ export async function GET(request: Request) {
     }
 
     const tableList = await runQuery(
-      "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
     );
     const tableNames = tableList.rows.map((r) => String((r as unknown[])[0]));
 
     const tables: D1TableSchema[] = await Promise.all(
       tableNames.map(async (name) => {
+        const escaped = name.replace(/'/g, "''");
         const [cols, idxs, fks] = await Promise.all([
-          runQuery(`PRAGMA table_info(${JSON.stringify(name)})`),
-          runQuery(`PRAGMA index_list(${JSON.stringify(name)})`),
-          runQuery(`PRAGMA foreign_key_list(${JSON.stringify(name)})`),
+          runQuery(`SELECT * FROM pragma_table_info('${escaped}')`),
+          runQuery(`SELECT * FROM pragma_index_list('${escaped}')`),
+          runQuery(`SELECT * FROM pragma_foreign_key_list('${escaped}')`),
         ]);
 
         const toObj = <T>(results: { columns: string[]; rows: unknown[][] }): T[] =>

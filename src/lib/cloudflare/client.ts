@@ -54,7 +54,12 @@ export class CloudflareClient {
       const text = await res.text();
       throw new CloudflareApiError(res.status, text);
     }
-    return res.json() as Promise<T>;
+    const json = await res.json() as { success: boolean; errors?: { code: number; message: string }[] } & T;
+    if (!json.success) {
+      const msg = json.errors?.[0]?.message ?? "Cloudflare API error";
+      throw new CloudflareApiError(res.status, msg);
+    }
+    return json as T;
   }
 
   readonly d1 = {
