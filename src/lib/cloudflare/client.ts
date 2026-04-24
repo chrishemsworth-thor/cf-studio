@@ -76,11 +76,24 @@ export class CloudflareClient {
       this.fetch<CfApiResponse<unknown>>(`/accounts/${this.accountId}/d1/database/${id}`, {
         method: "DELETE",
       }),
-    query: (databaseId: string, sql: string, params: unknown[] = []) =>
-      this.fetch<CfApiResponse<D1QueryResult[]>>(
-        `/accounts/${this.accountId}/d1/database/${databaseId}/raw`,
+    query: async (databaseId: string, sql: string, params: unknown[] = []): Promise<CfApiResponse<D1QueryResult[]>> => {
+      type Row = Record<string, unknown>;
+      type QueryItem = { results: Row[]; success: boolean; meta: D1QueryResult["meta"] };
+      const res = await this.fetch<CfApiResponse<QueryItem[]>>(
+        `/accounts/${this.accountId}/d1/database/${databaseId}/query`,
         { method: "POST", body: JSON.stringify({ sql, params }) }
-      ),
+      );
+      return {
+        ...res,
+        result: res.result.map((r) => ({
+          ...r,
+          results: {
+            columns: r.results.length > 0 ? Object.keys(r.results[0]) : [],
+            rows: r.results.map((row) => Object.values(row)),
+          },
+        })),
+      };
+    },
   };
 
   readonly r2 = {

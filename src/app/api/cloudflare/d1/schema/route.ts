@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     const tableList = await runQuery(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+      "SELECT name FROM pragma_table_list() WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
     );
     const tableNames = tableList.rows.map((r) => String((r as unknown[])[0]));
 
