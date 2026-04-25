@@ -55,7 +55,12 @@ export class CloudflareClient {
       const text = await res.text();
       throw new CloudflareApiError(res.status, text);
     }
-    return res.json() as Promise<T>;
+    const json = await res.json() as { success: boolean; errors?: { code: number; message: string }[] } & T;
+    if (!json.success) {
+      const msg = json.errors?.[0]?.message ?? "Cloudflare API error";
+      throw new CloudflareApiError(res.status, msg);
+    }
+    return json as T;
   }
 
   readonly d1 = {
@@ -72,11 +77,24 @@ export class CloudflareClient {
       this.fetch<CfApiResponse<unknown>>(`/accounts/${this.accountId}/d1/database/${id}`, {
         method: "DELETE",
       }),
-    query: (databaseId: string, sql: string, params: unknown[] = []) =>
-      this.fetch<CfApiResponse<D1QueryResult[]>>(
-        `/accounts/${this.accountId}/d1/database/${databaseId}/raw`,
+    query: async (databaseId: string, sql: string, params: unknown[] = []): Promise<CfApiResponse<D1QueryResult[]>> => {
+      type Row = Record<string, unknown>;
+      type QueryItem = { results: Row[]; success: boolean; meta: D1QueryResult["meta"] };
+      const res = await this.fetch<CfApiResponse<QueryItem[]>>(
+        `/accounts/${this.accountId}/d1/database/${databaseId}/query`,
         { method: "POST", body: JSON.stringify({ sql, params }) }
-      ),
+      );
+      return {
+        ...res,
+        result: res.result.map((r) => ({
+          ...r,
+          results: {
+            columns: r.results.length > 0 ? Object.keys(r.results[0]) : [],
+            rows: r.results.map((row) => Object.values(row)),
+          },
+        })),
+      };
+    },
   };
 
   readonly r2 = {
