@@ -41,6 +41,8 @@ export const cloudflareConnections = sqliteTable("cloudflare_connection", {
   label: text("label").notNull(),
   accountId: text("accountId").notNull(),
   encryptedToken: text("encryptedToken").notNull(),
+  r2AccessKeyId: text("r2AccessKeyId"),
+  encryptedR2SecretKey: text("encryptedR2SecretKey"),
   createdAt: integer("createdAt", { mode: "timestamp_ms" }).default(sql`(unixepoch() * 1000)`),
 });
 
