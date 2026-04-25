@@ -14,14 +14,20 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const db = getDb(env.DB);
-  const connections = await db
+  const rows = await db
     .select({
       id: cloudflareConnections.id,
       label: cloudflareConnections.label,
       accountId: cloudflareConnections.accountId,
+      r2AccessKeyId: cloudflareConnections.r2AccessKeyId,
     })
     .from(cloudflareConnections)
     .where(eq(cloudflareConnections.userId, session.user.id));
+
+  const connections = rows.map(({ r2AccessKeyId, ...rest }) => ({
+    ...rest,
+    hasR2Credentials: !!r2AccessKeyId,
+  }));
 
   return NextResponse.json({ connections });
 }

@@ -4,6 +4,15 @@ import { cloudflareConnections } from "@/lib/db/schema";
 import { decryptToken } from "@/lib/crypto";
 import { and, eq } from "drizzle-orm";
 
+// DOMParser polyfill — AWS SDK v3 uses it for XML parsing in browser/edge mode.
+// Not available in Node.js (local dev via @opennextjs/cloudflare). No-op in
+// Cloudflare Workers production where DOMParser is natively available.
+if (typeof (globalThis as Record<string, unknown>).DOMParser === "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { DOMParser } = require("@xmldom/xmldom") as { DOMParser: unknown };
+  (globalThis as Record<string, unknown>).DOMParser = DOMParser;
+}
+
 export const R2_NO_CREDS_ERROR = "R2 credentials not configured";
 
 export function createS3Client(accountId: string, accessKeyId: string, secretAccessKey: string): S3Client {
