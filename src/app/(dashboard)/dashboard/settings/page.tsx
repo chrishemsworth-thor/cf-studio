@@ -8,6 +8,7 @@ interface Connection {
   id: string;
   label: string;
   accountId: string;
+  hasR2Credentials: boolean;
 }
 
 function R2CredentialsCard({ connection }: { connection: Connection }) {
@@ -15,6 +16,7 @@ function R2CredentialsCard({ connection }: { connection: Connection }) {
   const [secretKey, setSecretKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [configured, setConfigured] = useState(connection.hasR2Credentials);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSave(e: React.FormEvent) {
@@ -30,6 +32,7 @@ function R2CredentialsCard({ connection }: { connection: Connection }) {
       });
       if (!res.ok) throw new Error("Failed to save");
       setSaved(true);
+      setConfigured(true);
       setAccessKeyId("");
       setSecretKey("");
       setTimeout(() => setSaved(false), 3000);
@@ -42,19 +45,29 @@ function R2CredentialsCard({ connection }: { connection: Connection }) {
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--hover-bg)] p-4">
-      <p className="mb-3 text-sm font-medium text-[var(--text-primary)]">{connection.label}</p>
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-sm font-medium text-[var(--text-primary)]">{connection.label}</p>
+        {configured && (
+          <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500">
+            <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+            Configured
+          </span>
+        )}
+      </div>
       <form onSubmit={handleSave} className="space-y-2">
         <input
           value={accessKeyId}
           onChange={(e) => setAccessKeyId(e.target.value)}
-          placeholder="Access Key ID"
+          placeholder={configured ? "Access Key ID (leave blank to keep existing)" : "Access Key ID"}
           className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-base)] px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none focus:border-emerald-500/60"
         />
         <input
           type="password"
           value={secretKey}
           onChange={(e) => setSecretKey(e.target.value)}
-          placeholder="Secret Access Key"
+          placeholder={configured ? "Secret Access Key (leave blank to keep existing)" : "Secret Access Key"}
           className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-base)] px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none focus:border-emerald-500/60"
         />
         {error && <p className="text-xs text-red-400">{error}</p>}
@@ -63,7 +76,7 @@ function R2CredentialsCard({ connection }: { connection: Connection }) {
           disabled={saving || !accessKeyId.trim() || !secretKey.trim()}
           className="rounded-md bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
         >
-          {saving ? "Saving…" : saved ? "Saved!" : "Save R2 credentials"}
+          {saving ? "Saving…" : saved ? "Saved!" : configured ? "Update R2 credentials" : "Save R2 credentials"}
         </button>
       </form>
     </div>

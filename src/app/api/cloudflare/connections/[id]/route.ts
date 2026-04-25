@@ -23,7 +23,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
 
   const db = getDb(env.DB);
-  const updates: Record<string, unknown> = {};
+  const updates: {
+    label?: string;
+    r2AccessKeyId?: string;
+    encryptedR2SecretKey?: string;
+  } = {};
 
   if (body.label?.trim()) updates.label = body.label.trim();
   if (body.r2AccessKeyId?.trim()) updates.r2AccessKeyId = body.r2AccessKeyId.trim();
