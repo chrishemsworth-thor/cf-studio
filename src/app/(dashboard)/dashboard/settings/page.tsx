@@ -10,6 +10,66 @@ interface Connection {
   accountId: string;
 }
 
+function R2CredentialsCard({ connection }: { connection: Connection }) {
+  const [accessKeyId, setAccessKeyId] = useState("");
+  const [secretKey, setSecretKey] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!accessKeyId.trim() || !secretKey.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/cloudflare/connections/${connection.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ r2AccessKeyId: accessKeyId.trim(), r2SecretKey: secretKey.trim() }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setSaved(true);
+      setAccessKeyId("");
+      setSecretKey("");
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError("Failed to save credentials");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--hover-bg)] p-4">
+      <p className="mb-3 text-sm font-medium text-[var(--text-primary)]">{connection.label}</p>
+      <form onSubmit={handleSave} className="space-y-2">
+        <input
+          value={accessKeyId}
+          onChange={(e) => setAccessKeyId(e.target.value)}
+          placeholder="Access Key ID"
+          className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-base)] px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none focus:border-emerald-500/60"
+        />
+        <input
+          type="password"
+          value={secretKey}
+          onChange={(e) => setSecretKey(e.target.value)}
+          placeholder="Secret Access Key"
+          className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-base)] px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none focus:border-emerald-500/60"
+        />
+        {error && <p className="text-xs text-red-400">{error}</p>}
+        <button
+          type="submit"
+          disabled={saving || !accessKeyId.trim() || !secretKey.trim()}
+          className="rounded-md bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+        >
+          {saving ? "Saving…" : saved ? "Saved!" : "Save R2 credentials"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function ConnectionCard({
   connection,
   onDeleted,
@@ -245,6 +305,27 @@ export default function SettingsPage() {
             <span className="font-medium text-[var(--text-muted)]">Tip:</span> Click a label to rename it.
             Disconnecting removes it from CF Studio — does not affect your Cloudflare account.
           </div>
+        )}
+
+        {/* R2 Credentials */}
+        {connections.length > 0 && (
+          <section className="space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-muted)]">R2 Credentials</h3>
+              <p className="mt-1 text-xs text-[var(--text-faint)]">
+                R2 object operations require a separate API token. Create one in your{" "}
+                <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline">
+                  Cloudflare dashboard
+                </a>{" "}
+                with R2 edit permissions.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {connections.map((c) => (
+                <R2CredentialsCard key={c.id} connection={c} />
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </div>
