@@ -46,7 +46,9 @@ export async function GET(request: Request) {
       isTruncated: res.IsTruncated ?? false,
     });
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "Failed";
+    console.error("[r2/objects GET]", msg, err);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 

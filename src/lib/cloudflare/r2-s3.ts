@@ -7,10 +7,13 @@ import { and, eq } from "drizzle-orm";
 // DOMParser polyfill — AWS SDK v3 uses it for XML parsing in browser/edge mode.
 // Not available in Node.js (local dev via @opennextjs/cloudflare). No-op in
 // Cloudflare Workers production where DOMParser is natively available.
+// Polyfill browser DOM globals required by AWS SDK v3 XML parser.
+// Not present in Node.js (local dev) — no-op in Cloudflare Workers where they exist natively.
 if (typeof (globalThis as Record<string, unknown>).DOMParser === "undefined") {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { DOMParser } = require("@xmldom/xmldom") as { DOMParser: unknown };
-  (globalThis as Record<string, unknown>).DOMParser = DOMParser;
+  const xmldom = require("@xmldom/xmldom") as { DOMParser: unknown; Node: unknown };
+  (globalThis as Record<string, unknown>).DOMParser = xmldom.DOMParser;
+  (globalThis as Record<string, unknown>).Node = xmldom.Node;
 }
 
 export { R2_NO_CREDS_ERROR } from "@/lib/cloudflare/r2-constants";

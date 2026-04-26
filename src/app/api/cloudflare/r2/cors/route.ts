@@ -36,7 +36,12 @@ export async function GET(request: Request) {
     const res = await client.r2.getCors(bucket);
     return NextResponse.json({ rules: res.result.rules ?? [] });
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed" }, { status: 500 });
+    // 10059 = "The CORS configuration does not exist" — bucket has no rules yet, treat as empty
+    const msg = err instanceof Error ? err.message : "";
+    if (msg.includes("10059") || msg.includes("does not exist")) {
+      return NextResponse.json({ rules: [] });
+    }
+    return NextResponse.json({ error: msg || "Failed" }, { status: 500 });
   }
 }
 
