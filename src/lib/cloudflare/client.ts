@@ -125,7 +125,7 @@ export class CloudflareClient {
     list: () =>
       this.fetch<CfListResponse<Worker>>(`/accounts/${this.accountId}/workers/scripts`),
     get: (scriptName: string) =>
-      this.fetch<CfApiResponse<Worker>>(`/accounts/${this.accountId}/workers/scripts/${scriptName}`),
+      this.fetch<CfApiResponse<Worker>>(`/accounts/${this.accountId}/workers/scripts/${scriptName}/settings`),
     delete: (scriptName: string) =>
       this.fetch<CfApiResponse<unknown>>(
         `/accounts/${this.accountId}/workers/scripts/${scriptName}`,

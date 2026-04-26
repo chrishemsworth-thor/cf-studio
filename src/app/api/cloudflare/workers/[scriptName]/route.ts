@@ -36,8 +36,10 @@ export async function GET(
 
   try {
     const client = await getClient(env, session.user.id, connectionId);
-    const res = await client.workers.get(scriptName);
-    return NextResponse.json({ worker: res.result });
+    const res = await client.workers.list();
+    const worker = res.result.find((w) => w.id === scriptName);
+    if (!worker) return NextResponse.json({ error: "Worker not found" }, { status: 404 });
+    return NextResponse.json({ worker });
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Failed" }, { status: 500 });
   }
