@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { ObjectMetadata } from "./object-metadata";
 import { PresignModal } from "./presign-modal";
 import { R2CredsPrompt } from "./r2-creds-prompt";
-import { R2_NO_CREDS_ERROR } from "@/lib/cloudflare/r2-s3";
+import { R2_NO_CREDS_ERROR } from "@/lib/cloudflare/r2-constants";
 
 interface R2Object {
   key: string;

@@ -13,7 +13,7 @@ if (typeof (globalThis as Record<string, unknown>).DOMParser === "undefined") {
   (globalThis as Record<string, unknown>).DOMParser = DOMParser;
 }
 
-export const R2_NO_CREDS_ERROR = "R2 credentials not configured";
+export { R2_NO_CREDS_ERROR } from "@/lib/cloudflare/r2-constants";
 
 export function createS3Client(accountId: string, accessKeyId: string, secretAccessKey: string): S3Client {
   return new S3Client({
