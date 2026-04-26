@@ -91,6 +91,23 @@ export interface WorkerDeployment {
   author_email?: string;
   annotations?: { message?: string; trigger_operation?: string };
 }
+  
+export interface R2Object {
+  key: string;
+  size: number;
+  etag: string;
+  last_modified: string;
+  content_type?: string;
+  storage_class?: string;
+}
+
+export interface R2CorsRule {
+  allowedOrigins: string[];
+  allowedMethods: string[];
+  allowedHeaders?: string[];
+  exposeHeaders?: string[];
+  maxAgeSeconds?: number;
+}
 
 export interface Worker {
   id: string;

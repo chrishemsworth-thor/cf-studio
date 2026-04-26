@@ -4,6 +4,7 @@ import type {
   D1Database as CfD1Database,
   D1QueryResult,
   R2Bucket,
+  R2CorsRule,
   Worker,
   WorkerDeployment,
   PagesProject,
@@ -109,6 +110,15 @@ export class CloudflareClient {
       this.fetch<CfApiResponse<unknown>>(`/accounts/${this.accountId}/r2/buckets/${bucketName}`, {
         method: "DELETE",
       }),
+    getCors: (bucketName: string) =>
+      this.fetch<CfApiResponse<{ rules?: R2CorsRule[] }>>(
+        `/accounts/${this.accountId}/r2/buckets/${encodeURIComponent(bucketName)}/cors`
+      ),
+    putCors: (bucketName: string, rules: R2CorsRule[]) =>
+      this.fetch<CfApiResponse<unknown>>(
+        `/accounts/${this.accountId}/r2/buckets/${encodeURIComponent(bucketName)}/cors`,
+        { method: "PUT", body: JSON.stringify({ rules }) }
+      ),
   };
 
   readonly workers = {
