@@ -5,6 +5,7 @@ import type {
   D1QueryResult,
   R2Bucket,
   Worker,
+  WorkerDeployment,
   PagesProject,
   PagesDeployment,
 } from "@/types/cloudflare";
@@ -119,6 +120,10 @@ export class CloudflareClient {
       this.fetch<CfApiResponse<unknown>>(
         `/accounts/${this.accountId}/workers/scripts/${scriptName}`,
         { method: "DELETE" }
+      ),
+    listDeployments: (scriptName: string) =>
+      this.fetch<CfApiResponse<{ deployments: WorkerDeployment[] }>>(
+        `/accounts/${this.accountId}/workers/scripts/${scriptName}/deployments`
       ),
   };
 

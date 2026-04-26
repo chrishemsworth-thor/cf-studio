@@ -78,6 +78,20 @@ export interface R2Bucket {
   location?: string;
 }
 
+export interface WorkerRoute {
+  id: string;
+  pattern: string;
+  script: string;
+}
+
+export interface WorkerDeployment {
+  id: string;
+  created_on: string;
+  source?: string;
+  author_email?: string;
+  annotations?: { message?: string; trigger_operation?: string };
+}
+
 export interface Worker {
   id: string;
   etag: string;
@@ -87,6 +101,8 @@ export interface Worker {
   deployment_id?: string;
   tail_consumers?: unknown[];
   usage_model?: string;
+  handlers?: string[];
+  routes?: WorkerRoute[];
 }
 
 export interface PagesProject {
